@@ -1,7 +1,7 @@
 using FabricaNube.Core.Interfaces;
 using FabricaNube.Infraestructura.Data;
 using FabricaNube.Infraestructura.Repositorio;
-using FabricaNube.Infraestructura.Services.FabricaNube.Infraestructura.Services;
+using FabricaNube.Infraestructura.Servicios;
 using Microsoft.EntityFrameworkCore;
 
 var url = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -31,7 +31,13 @@ builder.Services.AddScoped<IOrdenProduccionRepositorio, OrdenProduccionRepositor
 builder.Services.AddScoped<ILoteProduccionRepositorio, LoteProduccionRepositorio>();
 builder.Services.AddScoped<IControlCalidadRepositorio, ControlCalidadRepositorio>();
 builder.Services.AddScoped<ISolicitudDemandaRepositorio, SolicitudDemandaRepositorio>();
-builder.Services.AddHttpClient<SolicitudFabricaExternalService>();
+builder.Services.AddHttpClient("GranjaService", client =>
+{
+    client.BaseAddress = new Uri("https://proyecto1-production-daf8.up.railway.app");
+});
+
+builder.Services.AddScoped<ISolicitudLecheService, SolicitudLecheService>();
+
 
 
 builder.Services.AddControllers();

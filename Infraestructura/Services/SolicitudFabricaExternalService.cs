@@ -1,37 +1,40 @@
-﻿namespace FabricaNube.Infraestructura.Services
+﻿using System.Text;
+using System.Text.Json;
+using FabricaNube.Core.DTOs.SolicitudLeche;
+using FabricaNube.Core.Interfaces;
+
+namespace FabricaNube.Infraestructura.Servicios
 {
-    using System.Net.Http.Json;
-
-    namespace FabricaNube.Infraestructura.Services
+    public class SolicitudLecheService : ISolicitudLecheService
     {
-        public class SolicitudFabricaExternalService
+        private readonly HttpClient _http;
+
+        public SolicitudLecheService(IHttpClientFactory httpClientFactory)
         {
-            private readonly HttpClient _http;
+            _http = httpClientFactory.CreateClient("GranjaService");
+        }
 
-            public SolicitudFabricaExternalService(HttpClient http)
-            {
-                _http = http;
-            }
+        public async Task<bool> EnviarSolicitudLecheAsync(NuevaSolicitudLecheDto dto)
+        {
+            var json = JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // GET externo
-            public async Task<IEnumerable<dynamic>> GetSolicitudesAsync()
-            {
-                return await _http.GetFromJsonAsync<IEnumerable<dynamic>>(
-                    "https://proyecto1-production-daf8.up.railway.app/api/SolicitudesFabrica"
-                );
-            }
+            var response = await _http.PostAsync("/api/SolicitudesFabrica", content);
 
-            // POST externo
-            public async Task<bool> EnviarSolicitudAsync(object solicitud)
-            {
-                var response = await _http.PostAsJsonAsync(
-                    "https://proyecto1-production-daf8.up.railway.app/api/SolicitudesFabrica",
-                    solicitud
-                );
+            return response.IsSuccessStatusCode;
+        }
 
-                return response.IsSuccessStatusCode;
-            }
+        public async Task<List<object>> ObtenerSolicitudesLecheAsync()
+        {
+            var response = await _http.GetAsync("/api/SolicitudesFabrica");
+
+            if (!response.IsSuccessStatusCode)
+                return new List<object>();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<List<object>>(json);
         }
     }
-
 }
+

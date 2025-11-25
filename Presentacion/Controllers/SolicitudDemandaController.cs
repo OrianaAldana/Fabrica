@@ -1,6 +1,5 @@
 ﻿using FabricaNube.Core.DTOs;
 using FabricaNube.Core.Interfaces;
-using FabricaNube.Infraestructura.Services.FabricaNube.Infraestructura.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,8 +9,6 @@ namespace FabricaNube.Presentacion.Controllers
     [Route("api/[controller]")]
     public class SolicitudDemandaController : ControllerBase
     {
-        private readonly SolicitudFabricaExternalService _external;
-
         private readonly ISolicitudDemandaRepositorio _repo;
 
         public SolicitudDemandaController(ISolicitudDemandaRepositorio repo)
@@ -42,15 +39,6 @@ namespace FabricaNube.Presentacion.Controllers
             var ok = await _repo.UpdateEstadoAsync(id, nuevoEstado);
             return ok ? NoContent() : NotFound();
         }
-        public SolicitudDemandaController(
-           ISolicitudDemandaRepositorio repo,
-           SolicitudFabricaExternalService external
-)
-        {
-            _repo = repo;
-            _external = external;
-        }
-
     }
 
 }
