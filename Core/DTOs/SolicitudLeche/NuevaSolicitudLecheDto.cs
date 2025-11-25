@@ -3,6 +3,6 @@
     public class NuevaSolicitudLecheDto
     {
         public decimal LitrosSolicitados { get; set; }
-        public DateOnly Fecha { get; set; }
+        public DateTime Fecha { get; set; }
     }
 }
