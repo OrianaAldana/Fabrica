@@ -5,7 +5,7 @@
         public int IdLote { get; set; }
         public int IdOrden { get; set; }
         public int CantidadProducida { get; set; }
-        public DateTime FechaProduccion { get; set; }
+        public DateOnly FechaProduccion { get; set; }
         public string Estado { get; set; } = string.Empty;
     }
 }

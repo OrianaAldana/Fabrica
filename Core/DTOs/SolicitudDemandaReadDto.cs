@@ -6,7 +6,7 @@
         public int CodSucursal { get; set; }
         public int CodArticulo { get; set; }
         public int Cantidad { get; set; }
-        public DateTime FechaSolicitud { get; set; }
+        public DateOnly FechaSolicitud { get; set; }
         public string Estado { get; set; } = string.Empty;
     }
 }

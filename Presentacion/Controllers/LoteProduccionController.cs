@@ -1,96 +1,46 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FabricaNube.Data;
+using FabricaNube.Core.Entidades;
+using FabricaNube.Infraestructura.Data;
+using FabricaNube.Core.DTOs;
+using FabricaNube.Core.Interfaces;
 
-namespace FabricaNube.Controllers
+
+namespace FabricaNube.Presentacion.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class LoteProduccionController : ControllerBase
     {
-        private readonly FabricaDbContext _context;
+        private readonly ILoteProduccionRepositorio _repo;
 
-        public LoteProduccionController(FabricaDbContext context)
+        public LoteProduccionController(ILoteProduccionRepositorio repo)
         {
-            _context = context;
+            _repo = repo;
         }
 
-        // GET: api/LoteProduccion
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            var lista = await _context.LotesProduccion
-                .Where(l => l.Estado != "BORRADO")
-                .ToListAsync();
-            return Ok(lista);
+            var lote = await _repo.GetByIdAsync(id);
+            return lote == null ? NotFound() : Ok(lote);
         }
 
-        // GET: api/LoteProduccion/{codigo}
-        [HttpGet("{codigo}")]
-        public async Task<IActionResult> GetByCodigo(string codigo)
-        {
-            var l = await _context.LotesProduccion.FirstOrDefaultAsync(x => x.Codigo == codigo);
-            if (l == null) return NotFound();
-            return Ok(l);
-        }
-
-        // POST: api/LoteProduccion
-        // Registrar lote producido (y notificar/consumir servicio Almacen si se necesita)
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] LoteProduccion dto)
+        public async Task<IActionResult> Create(LoteProduccionCreateDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Codigo))
-                dto.Codigo = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
-
-            dto.FechaProduccion = DateTime.UtcNow;
-            dto.Estado = "PENDIENTE";
-
-            _context.LotesProduccion.Add(dto);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetByCodigo), new { codigo = dto.Codigo }, dto);
+            var nuevo = await _repo.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = nuevo.IdLote }, nuevo);
         }
 
-        // PUT: api/LoteProduccion/{codigo}
-        // Editar lote (cantidad, etc.)
-        [HttpPut("{codigo}")]
-        public async Task<IActionResult> Update(string codigo, [FromBody] LoteProduccion update)
+        [HttpPatch("{id}/estado")]
+        public async Task<IActionResult> UpdateEstado(int id, [FromBody] string nuevoEstado)
         {
-            var l = await _context.LotesProduccion.FirstOrDefaultAsync(x => x.Codigo == codigo);
-            if (l == null) return NotFound();
-
-            l.CantidadProducida = update.CantidadProducida;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // PATCH/PUT estado: api/LoteProduccion/{codigo}/estado
-        [HttpPut("{codigo}/estado")]
-        public async Task<IActionResult> UpdateEstado(string codigo, [FromBody] string nuevoEstado)
-        {
-            if (string.IsNullOrWhiteSpace(nuevoEstado)) return BadRequest("Se requiere estado en body");
-
-            var l = await _context.LotesProduccion.FirstOrDefaultAsync(x => x.Codigo == codigo);
-            if (l == null) return NotFound();
-
-            l.Estado = nuevoEstado.ToUpper();
-
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // DELETE (lógico)
-        [HttpDelete("{codigo}")]
-        public async Task<IActionResult> Delete(string codigo)
-        {
-            var l = await _context.LotesProduccion.FirstOrDefaultAsync(x => x.Codigo == codigo);
-            if (l == null) return NotFound();
-
-            l.Estado = "BORRADO";
-
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var ok = await _repo.UpdateEstadoAsync(id, nuevoEstado);
+            return ok ? NoContent() : NotFound();
         }
     }
 }

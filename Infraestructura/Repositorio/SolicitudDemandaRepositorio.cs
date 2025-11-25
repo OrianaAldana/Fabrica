@@ -1,6 +1,9 @@
 ﻿using FabricaNube.Core.DTOs;
 using FabricaNube.Core.Interfaces;
 using FabricaNube.Infraestructura.Data;
+using FabricaNube.Core.Mapeadores;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace FabricaNube.Infraestructura.Repositorio
 {

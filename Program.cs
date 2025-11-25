@@ -1,5 +1,6 @@
-using FabricaNube.Data;
-using FabricaNube.Services;
+using FabricaNube.Core.Interfaces;
+using FabricaNube.Infraestructura.Data;
+using FabricaNube.Infraestructura.Repositorio;
 using Microsoft.EntityFrameworkCore;
 
 var url = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -24,11 +25,16 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
+builder.Services.AddScoped<IOrdenProduccionRepositorio, OrdenProduccionRepositorio>();
+builder.Services.AddScoped<ILoteProduccionRepositorio, LoteProduccionRepositorio>();
+builder.Services.AddScoped<IControlCalidadRepositorio, ControlCalidadRepositorio>();
+builder.Services.AddScoped<ISolicitudDemandaRepositorio, SolicitudDemandaRepositorio>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<ISucursalService, SucursalService>();
 
 
 builder.Services.AddHttpClient("SucursalService", client =>
