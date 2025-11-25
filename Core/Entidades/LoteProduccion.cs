@@ -6,15 +6,9 @@ namespace FabricaNube.Core.Entidades
     {
         [Key]
         public int IdLote { get; set; }
-
-        [Required, MaxLength(30)]
-        public string Codigo { get; set; } = Guid.NewGuid().ToString("N").Substring(0, 8);
-
+        public int IdOrden { get; set; }
         public int CantidadProducida { get; set; }
-
-        public DateTime FechaProduccion { get; set; } = DateTime.UtcNow;
-
-        [MaxLength(20)]
+        public DateOnly FechaProduccion { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
         public string Estado { get; set; } = "PENDIENTE";
     }
 

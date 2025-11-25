@@ -9,7 +9,7 @@ namespace FabricaNube.Core.Entidades
         public int CodSucursal { get; set; }
         public int CodArticulo { get; set; }
         public int Cantidad { get; set; }
-        public DateTime FechaSolicitud { get; set; } = DateTime.UtcNow;
+        public DateOnly FechaSolicitud { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
         public string Estado { get; set; } = "ENVIADA";
     }
 
