@@ -11,11 +11,11 @@ namespace FabricaNube.Presentacion.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdenProduccionRepositorio : IOrdenProduccionRepositorio
+    public class OrdenProduccionController : IOrdenProduccionRepositorio
     {
         private readonly FabricaDbContext _context;
 
-        public OrdenProduccionRepositorio(FabricaDbContext context)
+        public OrdenProduccionController(FabricaDbContext context)
         {
             _context = context;
         }
