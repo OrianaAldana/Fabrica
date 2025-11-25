@@ -11,46 +11,37 @@ namespace FabricaNube.Presentacion.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdenProduccionController : IOrdenProduccionRepositorio
+    public class OrdenProduccionController : ControllerBase
     {
-        private readonly FabricaDbContext _context;
+        private readonly IOrdenProduccionRepositorio _repo;
 
-        public OrdenProduccionController(FabricaDbContext context)
+        public OrdenProduccionController(IOrdenProduccionRepositorio repo)
         {
-            _context = context;
+            _repo = repo;
         }
 
-        public async Task<List<OrdenProduccionReadDto>> GetAllAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            return await _context.OrdenesProduccion
-                .Select(o => o.ToOrdenReadDto())
-                .ToListAsync();
+            var orden = await _repo.GetByIdAsync(id);
+            return orden == null ? NotFound() : Ok(orden);
         }
 
-        public async Task<OrdenProduccionReadDto?> GetByIdAsync(int id)
+        [HttpPost]
+        public async Task<IActionResult> Create(OrdenProduccionCreateDto dto)
         {
-            return await _context.OrdenesProduccion
-                .Where(o => o.IdOrden == id)
-                .Select(o => o.ToOrdenReadDto())
-                .FirstOrDefaultAsync();
+            var nueva = await _repo.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = nueva.IdOrden }, nueva);
         }
 
-        public async Task<OrdenProduccionReadDto> CreateAsync(OrdenProduccionCreateDto dto)
+        [HttpPatch("{id}/estado")]
+        public async Task<IActionResult> UpdateEstado(int id, [FromBody] string nuevoEstado)
         {
-            var entity = dto.ToOrden();
-            _context.OrdenesProduccion.Add(entity);
-            await _context.SaveChangesAsync();
-            return entity.ToOrdenReadDto();
-        }
-
-        public async Task<bool> UpdateEstadoAsync(int id, string nuevoEstado)
-        {
-            var entity = await _context.OrdenesProduccion.FindAsync(id);
-            if (entity == null) return false;
-
-            entity.Estado = nuevoEstado;
-            await _context.SaveChangesAsync();
-            return true;
+            var ok = await _repo.UpdateEstadoAsync(id, nuevoEstado);
+            return ok ? NoContent() : NotFound();
         }
     }
 }
