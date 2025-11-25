@@ -1,6 +1,7 @@
 using FabricaNube.Core.Interfaces;
 using FabricaNube.Infraestructura.Data;
 using FabricaNube.Infraestructura.Repositorio;
+using FabricaNube.Infraestructura.Services.FabricaNube.Infraestructura.Services;
 using Microsoft.EntityFrameworkCore;
 
 var url = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -30,6 +31,8 @@ builder.Services.AddScoped<IOrdenProduccionRepositorio, OrdenProduccionRepositor
 builder.Services.AddScoped<ILoteProduccionRepositorio, LoteProduccionRepositorio>();
 builder.Services.AddScoped<IControlCalidadRepositorio, ControlCalidadRepositorio>();
 builder.Services.AddScoped<ISolicitudDemandaRepositorio, SolicitudDemandaRepositorio>();
+builder.Services.AddHttpClient<SolicitudFabricaExternalService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -48,9 +51,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<FabricaDbContext>();
+    db.Database.Migrate();
 }
 
-    app.UseSwagger();
+app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("CorsLibre");
